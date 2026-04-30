@@ -1,2 +1,2 @@
 # GhostFL
-GhostFL Paper  
+GhostFL Paper - anonymous submission 
