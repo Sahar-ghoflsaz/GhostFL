@@ -80,10 +80,6 @@ def run(args):
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             global_model.get()
 
-    torch.save(global_model.state_dict(),'model.pth')
-    file_size = os.path.getsize('global_model.pth')
-    print(f"model size: {file_size} bytes")
-
     #################### end of generating global model #######################
 
     
