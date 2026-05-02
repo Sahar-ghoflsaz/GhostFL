@@ -87,7 +87,7 @@ def get_data_loaders(args, kwargs, private=True):
         print("dataset\n")
         transformation = transforms.Compose([transforms.ToTensor()])
         try:
-            data_dir = HOME + "/fusefl/FuSeFL/data/pytorch-tiny-imagenet/tiny-imagenet-200/"
+            data_dir = HOME + "../data/pytorch-tiny-imagenet/tiny-imagenet-200/"
             train_dataset = datasets.ImageFolder(os.path.join(data_dir, "train"), transformation)
             test_dataset = datasets.ImageFolder(os.path.join(data_dir, "test"), transformation)
         except FileNotFoundError:

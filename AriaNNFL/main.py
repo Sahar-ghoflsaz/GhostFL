@@ -80,9 +80,9 @@ def run(args):
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             global_model.get()
 
-    # torch.save(global_model.state_dict(),'model.pth')
-    # file_size = os.path.getsize('global_model.pth')
-    # print(f"model size: {file_size} bytes")
+    torch.save(global_model.state_dict(),'model.pth')
+    file_size = os.path.getsize('global_model.pth')
+    print(f"model size: {file_size} bytes")
 
     #################### end of generating global model #######################
 
@@ -119,12 +119,8 @@ def run(args):
                 build_prepocessing(args.model, args.dataset, args.batch_size, workers[gepoch*NUM_CLIENTS + client], args)
 
             federated_train_loaders, new_test_loaders = get_federated_data_loaders(args, kwargs[gepoch*NUM_CLIENTS + client], num_clients=NUM_CLIENTS, private=True)
-            # new_global.decrypt()
             model[gepoch*NUM_CLIENTS + client] = copy.deepcopy(new_global)
-            # if not args.public:
-            #     new_global.encrypt(**kwargs1)
-            #     if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-            #         new_global.get()
+
             if args.test and not args.train:
                 load_state_dict(model[gepoch*NUM_CLIENTS + client], args.model, args.dataset)
 
@@ -151,25 +147,19 @@ def run(args):
                     train_time = train(args, model[gepoch*NUM_CLIENTS + client], federated_train_loaders[client], optimizer, epoch)
                     print("end train")
                 if client == 0:
-                    # model[client].send()
                     
                     model[gepoch*NUM_CLIENTS + client].decrypt()
                     print(model[gepoch*NUM_CLIENTS + client].fc1.weight.data)
                     new_model = copy.deepcopy(model[gepoch*NUM_CLIENTS + client])
                     if not args.public:
-                        # model[client].encrypt(**kwargs[client])
                         new_model.encrypt(**kwargs1)
                         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-                            # model[client].get()
                             new_model.get()
-
-                    # print("alice has: " + str(alice._objects))
                     
                     if args.model == 'network1':
                         global_model.fc1.weight.data = new_model.fc1.weight.data
                         global_model.fc2.weight.data = new_model.fc2.weight.data
                         global_model.fc3.weight.data = new_model.fc3.weight.data
-                    # model[client].fc1.weight.data=model[client].fc1.weight.data.send(john)
 
                     elif args.model == 'network2':
                         global_model.conv1.weight.data = new_model.conv1.weight.data
@@ -191,6 +181,24 @@ def run(args):
                         global_model.fc1.weight.data = new_model.fc1.weight.data
                         global_model.fc2.weight.data = new_model.fc2.weight.data
                         global_model.fc3.weight.data = new_model.fc3.weight.data
+                    
+                    elif args.model == 'vgg16':
+                        global_model.conv1.weight.data = new_model.conv1.weight.data
+                        global_model.conv2.weight.data = new_model.conv2.weight.data
+                        global_model.conv3.weight.data = new_model.conv3.weight.data
+                        global_model.conv4.weight.data = new_model.conv4.weight.data
+                        global_model.conv5.weight.data = new_model.conv5.weight.data
+                        global_model.conv6.weight.data = new_model.conv6.weight.data
+                        global_model.conv7.weight.data = new_model.conv7.weight.data
+                        global_model.conv8.weight.data = new_model.conv8.weight.data
+                        global_model.conv9.weight.data = new_model.conv9.weight.data
+                        global_model.conv10.weight.data = new_model.conv10.weight.data
+                        global_model.conv11.weight.data = new_model.conv11.weight.data
+                        global_model.conv12.weight.data = new_model.conv12.weight.data
+                        global_model.conv13.weight.data = new_model.conv13.weight.data
+                        global_model.fc1.weight.data = new_model.fc1.weight.data
+                        global_model.fc2.weight.data = new_model.fc2.weight.data
+                        global_model.fc3.weight.data = new_model.fc3.weight.data
 
                     else:
                         print("network not supported")
@@ -201,13 +209,10 @@ def run(args):
                     print(model[gepoch*NUM_CLIENTS + client].fc1.weight.data)
                     new_model = copy.deepcopy(model[gepoch*NUM_CLIENTS + client])
                     if not args.public:
-                        # model[client].encrypt(**kwargs[client])
                         new_model.encrypt(**kwargs1)
                         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-                            # model[client].get()
                             new_model.get()
 
-                    # print("alice has: " + str(alice._objects))
                     if args.model == 'network1':
                         global_model.fc1.weight.data = (global_model.fc1.weight.data + new_model.fc1.weight.data)
                         global_model.fc2.weight.data = (global_model.fc2.weight.data + new_model.fc2.weight.data)
@@ -229,6 +234,24 @@ def run(args):
                         global_model.conv3.weight.data += new_model.conv3.weight.data
                         global_model.conv4.weight.data += new_model.conv4.weight.data
                         global_model.conv5.weight.data += new_model.conv5.weight.data
+                        global_model.fc1.weight.data += new_model.fc1.weight.data
+                        global_model.fc2.weight.data += new_model.fc2.weight.data
+                        global_model.fc3.weight.data += new_model.fc3.weight.data
+
+                    elif args.model == 'vgg16':
+                        global_model.conv1.weight.data += new_model.conv1.weight.data
+                        global_model.conv2.weight.data += new_model.conv2.weight.data
+                        global_model.conv3.weight.data += new_model.conv3.weight.data
+                        global_model.conv4.weight.data += new_model.conv4.weight.data
+                        global_model.conv5.weight.data += new_model.conv5.weight.data
+                        global_model.conv6.weight.data += new_model.conv6.weight.data
+                        global_model.conv7.weight.data += new_model.conv7.weight.data
+                        global_model.conv8.weight.data += new_model.conv8.weight.data
+                        global_model.conv9.weight.data += new_model.conv9.weight.data
+                        global_model.conv10.weight.data += new_model.conv10.weight.data
+                        global_model.conv11.weight.data += new_model.conv11.weight.data
+                        global_model.conv12.weight.data += new_model.conv12.weight.data
+                        global_model.conv13.weight.data += new_model.conv13.weight.data
                         global_model.fc1.weight.data += new_model.fc1.weight.data
                         global_model.fc2.weight.data += new_model.fc2.weight.data
                         global_model.fc3.weight.data += new_model.fc3.weight.data
@@ -260,11 +283,24 @@ def run(args):
                             global_model.conv3.weight.data /= NUM_CLIENTS
                             global_model.conv4.weight.data /= NUM_CLIENTS
                             global_model.conv5.weight.data /= NUM_CLIENTS
+                        elif args.model == 'vgg16':
+                            global_model.fc1.weight.data /= NUM_CLIENTS
+                            global_model.fc2.weight.data /= NUM_CLIENTS
+                            global_model.fc3.weight.data /= NUM_CLIENTS
+                            global_model.conv1.weight.data /= NUM_CLIENTS
+                            global_model.conv2.weight.data /= NUM_CLIENTS
+                            global_model.conv3.weight.data /= NUM_CLIENTS
+                            global_model.conv4.weight.data /= NUM_CLIENTS
+                            global_model.conv5.weight.data /= NUM_CLIENTS
+                            global_model.conv6.weight.data /= NUM_CLIENTS
+                            global_model.conv7.weight.data /= NUM_CLIENTS
+                            global_model.conv8.weight.data /= NUM_CLIENTS
+                            global_model.conv9.weight.data /= NUM_CLIENTS
+                            global_model.conv10.weight.data /= NUM_CLIENTS
                         else: 
                             print("network not supported")
 
 
-            # model[client].get(workers_a)
             if args.preprocess:
                 print("preprocessing")
                 missing_items = [len(v) for k, v in sy.preprocessed_material.items()]
@@ -272,11 +308,6 @@ def run(args):
                     print("MISSING preprocessed material")
                     for key, value in sy.preprocessed_material.items():
                         print(f"'{key}':", value, ",")
-
-        # if not args.public:
-        #     decmodel0.encrypt(**kwargs)
-        #     if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-        #         decmodel0.get()
         print("evaluation")
         global_model.decrypt()
         print(global_model.fc1.weight.data)
@@ -497,15 +528,5 @@ if __name__ == "__main__":
             raise e
 
     else:
-        # arg= [None] * NUM_CLIENTS
-        # totalModel = Null
-        # for client in range(NUM_CLIENTS):
-            # arg[client] = Arguments()
-        # for client in range(NUM_CLIENTS):
-            # print("running training on client" + str(client))
-        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         run(args)
         memory_summary()
-        # print(torch.cuda.memory_summary(device=device, abbreviated=False))
-            # print("done on client" + str(client))
-            # totalModel += arg[client].model
