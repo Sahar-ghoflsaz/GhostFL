@@ -199,6 +199,24 @@ def run(args):
                         local_model.fc1.weight.data = local_model.fc1.weight.data + new_model.fc1.weight.data
                         local_model.fc2.weight.data = local_model.fc2.weight.data + new_model.fc2.weight.data
                         local_model.fc3.weight.data = local_model.fc3.weight.data + new_model.fc3.weight.data
+                    elif args.model == 'vgg16':
+                        local_model.conv1.weight.data = local_model.conv1.weight.data + new_model.conv1.weight.data
+                        local_model.conv2.weight.data = local_model.conv2.weight.data + new_model.conv2.weight.data
+                        local_model.conv3.weight.data = local_model.conv3.weight.data + new_model.conv3.weight.data
+                        local_model.conv4.weight.data = local_model.conv4.weight.data + new_model.conv4.weight.data
+                        local_model.conv5.weight.data = local_model.conv5.weight.data + new_model.conv5.weight.data
+                        local_model.conv6.weight.data = local_model.conv6.weight.data + new_model.conv6.weight.data
+                        local_model.conv7.weight.data = local_model.conv7.weight.data + new_model.conv7.weight.data
+                        local_model.conv8.weight.data = local_model.conv8.weight.data + new_model.conv8.weight.data
+                        local_model.conv9.weight.data = local_model.conv9.weight.data + new_model.conv9.weight.data
+                        local_model.conv10.weight.data = local_model.conv10.weight.data + new_model.conv10.weight.data
+                        local_model.conv11.weight.data = local_model.conv11.weight.data + new_model.conv11.weight.data
+                        local_model.conv12.weight.data = local_model.conv12.weight.data + new_model.conv12.weight.data
+                        local_model.conv13.weight.data = local_model.conv13.weight.data + new_model.conv13.weight.data
+                        local_model.fc1.weight.data = local_model.fc1.weight.data + new_model.fc1.weight.data
+                        local_model.fc2.weight.data = local_model.fc2.weight.data + new_model.fc2.weight.data
+                        local_model.fc3.weight.data = local_model.fc3.weight.data + new_model.fc3.weight.data
+
 
             if globalClients == 0:
                 if args.model == 'network1':
@@ -224,6 +242,23 @@ def run(args):
                     global_model.conv3.weight.data = local_model.conv3.weight.data
                     global_model.conv4.weight.data = local_model.conv4.weight.data
                     global_model.conv5.weight.data = local_model.conv5.weight.data
+                    global_model.fc1.weight.data = local_model.fc1.weight.data
+                    global_model.fc2.weight.data = local_model.fc2.weight.data
+                    global_model.fc3.weight.data = local_model.fc3.weight.data
+                elif args.model == 'vgg16':
+                    global_model.conv1.weight.data = local_model.conv1.weight.data
+                    global_model.conv2.weight.data = local_model.conv2.weight.data
+                    global_model.conv3.weight.data = local_model.conv3.weight.data
+                    global_model.conv4.weight.data = local_model.conv4.weight.data
+                    global_model.conv5.weight.data = local_model.conv5.weight.data
+                    global_model.conv6.weight.data = local_model.conv6.weight.data
+                    global_model.conv7.weight.data = local_model.conv7.weight.data
+                    global_model.conv8.weight.data = local_model.conv8.weight.data
+                    global_model.conv9.weight.data = local_model.conv9.weight.data
+                    global_model.conv10.weight.data = local_model.conv10.weight.data
+                    global_model.conv11.weight.data = local_model.conv11.weight.data
+                    global_model.conv12.weight.data = local_model.conv12.weight.data
+                    global_model.conv13.weight.data = local_model.conv13.weight.data
                     global_model.fc1.weight.data = local_model.fc1.weight.data
                     global_model.fc2.weight.data = local_model.fc2.weight.data
                     global_model.fc3.weight.data = local_model.fc3.weight.data
@@ -267,6 +302,23 @@ def run(args):
                     global_model.fc1.weight.data += local_model.fc1.weight.data
                     global_model.fc2.weight.data += local_model.fc2.weight.data
                     global_model.fc3.weight.data += local_model.fc3.weight.data
+                elif args.model == 'vgg16':
+                    global_model.conv1.weight.data += local_model.conv1.weight.data
+                    global_model.conv2.weight.data += local_model.conv2.weight.data
+                    global_model.conv3.weight.data += local_model.conv3.weight.data
+                    global_model.conv4.weight.data += local_model.conv4.weight.data
+                    global_model.conv5.weight.data += local_model.conv5.weight.data
+                    global_model.conv6.weight.data += local_model.conv6.weight.data
+                    global_model.conv7.weight.data += local_model.conv7.weight.data
+                    global_model.conv8.weight.data += local_model.conv8.weight.data
+                    global_model.conv9.weight.data += local_model.conv9.weight.data
+                    global_model.conv10.weight.data += local_model.conv10.weight.data
+                    global_model.conv11.weight.data += local_model.conv11.weight.data
+                    global_model.conv12.weight.data += local_model.conv12.weight.data
+                    global_model.conv13.weight.data += local_model.conv13.weight.data
+                    global_model.fc1.weight.data += local_model.fc1.weight.data
+                    global_model.fc2.weight.data += local_model.fc2.weight.data
+                    global_model.fc3.weight.data += local_model.fc3.weight.data
 
                 # just for print can be removed
                 
@@ -307,6 +359,23 @@ def run(args):
                     global_model.conv3.weight.data /= NUM_CLIENTS
                     global_model.conv4.weight.data /= NUM_CLIENTS
                     global_model.conv5.weight.data /= NUM_CLIENTS
+                elif args.model == 'vgg16':
+                    global_model.fc1.weight.data /= NUM_CLIENTS
+                    global_model.fc2.weight.data /= NUM_CLIENTS
+                    global_model.fc3.weight.data /= NUM_CLIENTS
+                    global_model.conv1.weight.data /= NUM_CLIENTS
+                    global_model.conv2.weight.data /= NUM_CLIENTS
+                    global_model.conv3.weight.data /= NUM_CLIENTS
+                    global_model.conv4.weight.data /= NUM_CLIENTS
+                    global_model.conv5.weight.data /= NUM_CLIENTS
+                    global_model.conv6.weight.data /= NUM_CLIENTS
+                    global_model.conv7.weight.data /= NUM_CLIENTS
+                    global_model.conv8.weight.data /= NUM_CLIENTS
+                    global_model.conv9.weight.data /= NUM_CLIENTS
+                    global_model.conv10.weight.data /= NUM_CLIENTS
+                    global_model.conv11.weight.data /= NUM_CLIENTS
+                    global_model.conv12.weight.data /= NUM_CLIENTS
+                    global_model.conv13.weight.data /= NUM_CLIENTS
                 
             # model[client].get(workers_a)
         if args.preprocess:

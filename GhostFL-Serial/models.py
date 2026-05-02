@@ -15,7 +15,6 @@ class Network1(nn.Module):
         self.fc3 = nn.Linear(128, out_features)
 
     def forward(self, x):
-        # print("forward class")
         x = x.reshape(-1, 784)
         x = self.fc1(x)
         x = F.relu(x)
@@ -72,68 +71,123 @@ class LeNet(nn.Module):
         return x
 
 
-class AlexNet_CIFAR10(nn.Module):
-    def __init__(self, out_features=10):
-        super(AlexNet_CIFAR10, self).__init__()
+class VGG16_Hymenoptera_NoPad(nn.Module):
+    def __init__(self, out_features=2):
+        super(VGG16_Hymenoptera_NoPad, self).__init__()
 
-        self.conv1 = nn.Conv2d(3, 96, kernel_size=3, stride=1, padding=0)
-        self.conv2 = nn.Conv2d(96, 256, kernel_size=5, stride=1, padding=0) 
-        self.conv3 = nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=0)
-        self.conv4 = nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=0)
-        self.conv5 = nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=0)
+        # Block 1
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
 
-        self.fc1 = nn.Linear(256 * 2 * 2, 256) 
-        self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, out_features)
+        # Block 2
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=0)
+        self.conv4 = nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=0)
+
+        # Block 3
+        self.conv5 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
+        self.conv6 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=0)
+        self.conv7 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=0)
+
+        # Block 4
+        self.conv8 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=0)
+        self.conv9 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+        self.conv10 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+
+        # Block 5
+        self.conv11 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+        self.conv12 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+        self.conv13 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
+
+        # Classifier
+        self.fc1 = nn.Linear(512 * 1 * 1, 512)
+        self.fc2 = nn.Linear(512, 512)
+        self.fc3 = nn.Linear(512, out_features)
 
     def forward(self, x):
-        x = F.max_pool2d(F.relu(self.conv1(x)), kernel_size=2, stride=2)
+        x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
+
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
-        x = F.relu(self.conv5(x))
-        x = F.max_pool2d(x, kernel_size=2, stride=2) 
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
 
-        x = x.reshape(-1, 256 * 2 * 2)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = F.relu(self.conv7(x))
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
+
+        x = F.relu(self.conv8(x))
+        x = F.relu(self.conv9(x))
+        x = F.relu(self.conv10(x))
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
+
+        x = F.relu(self.conv11(x))
+        x = F.relu(self.conv12(x))
+        x = F.relu(self.conv13(x))
+        x = F.max_pool2d(x, kernel_size=2, stride=2)
+
+        x = x.reshape(-1, 512 * 1 * 1)
 
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
 
         return x
-# class AlexNet_CIFAR10(nn.Module):
-#     def __init__(self, out_features=10):
-#         super(AlexNet_CIFAR10, self).__init__()
-#         self.conv_base = nn.Sequential(
-#             nn.Conv2d(3, 96, kernel_size=11, stride=4, padding=10),
-#             nn.MaxPool2d(kernel_size=3, stride=2),
-#             nn.ReLU(inplace=True),  ## inverted!
-#             nn.BatchNorm2d(96),
-#             nn.Conv2d(96, 256, kernel_size=5, stride=1, padding=1),
-#             nn.MaxPool2d(kernel_size=3, stride=2),
-#             nn.ReLU(inplace=True),  ## inverted!
-#             nn.BatchNorm2d(256),
-#             nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=True),
-#             nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=True),
-#             nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=1),
-#             nn.ReLU(inplace=True),
-#         )
-#         self.fc_base = nn.Sequential(
-#             nn.Linear(256, 256),
-#             nn.ReLU(inplace=True),
-#             nn.Linear(256, 256),
-#             nn.ReLU(inplace=True),
-#             nn.Linear(256, out_features),
-#             nn.ReLU(inplace=True),
-#         )
 
-#     def forward(self, x):
-#         x = self.conv_base(x)
-#         x = torch.flatten(x, 1)
-#         x = self.fc_base(x)
-#         return x
+
+class AlexNet_CIFAR10(nn.Module):
+    def __init__(self, out_features=10):
+        super(AlexNet_CIFAR10, self).__init__()
+
+        # Feature Extractor (ALL PADDING SET TO 0)
+        self.conv1 = nn.Conv2d(3, 96, kernel_size=3, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(96, 256, kernel_size=5, stride=1, padding=0) 
+        self.conv3 = nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=0)
+        self.conv4 = nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=0)
+        self.conv5 = nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=0)
+
+        # Classifier
+        # The input size shrinks to 2x2 because we removed all padding
+        self.fc1 = nn.Linear(256 * 2 * 2, 256) 
+        self.fc2 = nn.Linear(256, 256)
+        self.fc3 = nn.Linear(256, out_features)
+
+    def forward(self, x):
+        # Layer 1: Conv -> ReLU -> Pool
+        # print("First conv")
+        x = F.max_pool2d(F.relu(self.conv1(x)), kernel_size=2, stride=2)
+
+        # Layer 2: Conv -> ReLU 
+        # (Removed the pooling layer here so the tensor doesn't shrink too fast)
+        # print("Second conv")
+        x = F.relu(self.conv2(x))
+
+        # Layers 3, 4, 5: Conv -> ReLU
+        # print("Third conv")
+        x = F.relu(self.conv3(x))
+        # print("Fourth conv")
+        x = F.relu(self.conv4(x))
+        # print("Fifth conv")
+        x = F.relu(self.conv5(x))
+        
+        # Final Pool
+        # print("fINAL POOL")
+        x = F.max_pool2d(x, kernel_size=2, stride=2) 
+
+        # Reshape for the linear layers based on the new 2x2 spatial size
+        # print("Reshape")
+        x = x.reshape(-1, 256 * 2 * 2)
+
+        # Fully Connected
+        # print("First fc")
+        x = F.relu(self.fc1(x))
+        # print("second fc")
+        x = F.relu(self.fc2(x))
+        # print("Third fc")
+        x = self.fc3(x)
+
+        return x
 
 
 class AlexNet_FALCON(nn.Module):
@@ -214,7 +268,13 @@ def alexnet(dataset, out_features):
 
 
 def vgg16(dataset, out_features):
-    model = models.vgg16()
+    if dataset == "hymenoptera":
+        model = VGG16_Hymenoptera_NoPad(out_features)
+        return model
+    elif dataset == "tiny-imagenet":
+        model = models.vgg16()
+        
+    # model = models.vgg16()
 
     # Invert ReLU <-> Maxpool
     for i, module in enumerate(model.features[:-1]):

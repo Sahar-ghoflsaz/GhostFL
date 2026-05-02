@@ -8,6 +8,14 @@ HOME = "~"
 NUM_CLIENTS = 16
 BATCH_SIZE = 64
 
+import os
+
+import torch
+from torchvision import datasets, transforms
+
+HOME = "~"
+
+
 def get_number_classes(dataset):
     number_classes = {
         "mnist": 10,
@@ -18,7 +26,7 @@ def get_number_classes(dataset):
     return number_classes[dataset]
 
 
-def one_hot_of(index_tensor):
+def one_hot_of(index_tensor,num_classes):
     """
     Transform to one hot tensor
 
@@ -30,9 +38,14 @@ def one_hot_of(index_tensor):
          [0., 0., 0., 0., 0., 0., 0., 0., 0., 1.]]
 
     """
-    onehot_tensor = torch.zeros(*index_tensor.shape, 10)  # 10 classes for MNIST
-    onehot_tensor = onehot_tensor.scatter(1, index_tensor.view(-1, 1), 1)
+    index_tensor = index_tensor.long().view(-1)
+    onehot_tensor = torch.zeros(index_tensor.size(0), num_classes)
+    onehot_tensor.scatter_(1, index_tensor.unsqueeze(1), 1)
     return onehot_tensor
+    #only for 10 clients which i cahnged to num_classes
+    # onehot_tensor = torch.zeros(*index_tensor.shape, 10)  # 10 classes for MNIST
+    # onehot_tensor = onehot_tensor.scatter(1, index_tensor.view(-1, 1), 1)
+    # return onehot_tensor
 
 
 def get_data_loaders(args, kwargs, private=True):
@@ -54,6 +67,7 @@ def get_data_loaders(args, kwargs, private=True):
         return encrypted_tensor
 
     dataset = args.dataset
+    num_classes = get_number_classes(dataset)
 
     if dataset == "mnist":
         transformation = transforms.Compose(
@@ -81,9 +95,10 @@ def get_data_loaders(args, kwargs, private=True):
         )
 
     elif dataset == "tiny-imagenet":
+        print("dataset\n")
         transformation = transforms.Compose([transforms.ToTensor()])
         try:
-            data_dir = HOME + "/pytorch-tiny-imagenet/tiny-imagenet-200/"
+            data_dir = HOME + "../data/pytorch-tiny-imagenet/tiny-imagenet-200/"
             train_dataset = datasets.ImageFolder(os.path.join(data_dir, "train"), transformation)
             test_dataset = datasets.ImageFolder(os.path.join(data_dir, "test"), transformation)
         except FileNotFoundError:
@@ -111,7 +126,7 @@ def get_data_loaders(args, kwargs, private=True):
             ]
         )
         try:
-            data_dir = HOME + "/hymenoptera_data"
+            data_dir = HOME + "../data/hymenoptera_data"
             train_dataset = datasets.ImageFolder(
                 os.path.join(data_dir, "train"), train_transformation
             )
@@ -137,9 +152,9 @@ def get_data_loaders(args, kwargs, private=True):
         if args.n_train_items >= 0 and i >= args.n_train_items / args.batch_size:
             break
         if private:
-            new_train_loader.append((encode(data), encode(one_hot_of(target))))
+            new_train_loader.append((encode(data), encode(one_hot_of(target,num_classes))))
         else:
-            new_train_loader.append((data, one_hot_of(target)))
+            new_train_loader.append((data, one_hot_of(target,num_classes)))
 
     test_loader = torch.utils.data.DataLoader(
         test_dataset,
@@ -160,14 +175,6 @@ def get_data_loaders(args, kwargs, private=True):
 
 def get_federated_data_loaders(args, kwargs, num_clients=NUM_CLIENTS, private=True):
     def encode(tensor):
-        """
-        Depending on the setting, acts on a tensor
-        - Do nothing
-        OR
-        - Transform to fixed precision
-        OR
-        - Secret share
-        """
         if args.public:
             return tensor
 
@@ -177,12 +184,12 @@ def get_federated_data_loaders(args, kwargs, num_clients=NUM_CLIENTS, private=Tr
         return encrypted_tensor
 
     dataset = args.dataset
+    num_classes = get_number_classes(dataset)
 
     if dataset == "mnist":
         transformation = transforms.Compose(
             [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
         )
-
         train_dataset = datasets.MNIST(
             "../data", train=True, download=True, transform=transformation
         )
@@ -197,13 +204,45 @@ def get_federated_data_loaders(args, kwargs, num_clients=NUM_CLIENTS, private=Tr
                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
             ]
         )
-
         train_dataset = datasets.CIFAR10(
             "../data", train=True, download=True, transform=transformation
         )
         test_dataset = datasets.CIFAR10(
             "../data", train=False, download=True, transform=transformation
         )
+
+    elif dataset == "hymenoptera":
+        train_transformation = transforms.Compose(
+            [
+                transforms.RandomResizedCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
+        test_transformation = transforms.Compose(
+            [
+                transforms.Resize(256),
+                transforms.CenterCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
+        try:
+            data_dir = HOME + "../data/hymenoptera_data"
+            train_dataset = datasets.ImageFolder(
+                os.path.join(data_dir, "train"), train_transformation
+            )
+            test_dataset = datasets.ImageFolder(
+                os.path.join(data_dir, "val"), test_transformation
+            )
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                "You need to install manually the hymenoptera dataset.\n"
+                f"Here are the instruction to run in {HOME}:\n"
+                "wget https://download.pytorch.org/tutorial/hymenoptera_data.zip\n"
+                "unzip hymenoptera_data.zip"
+            )
 
     else:
         raise ValueError(f"Not supported dataset {dataset}")
@@ -231,9 +270,9 @@ def get_federated_data_loaders(args, kwargs, num_clients=NUM_CLIENTS, private=Tr
             if args.n_train_items >= 0 and i >= args.n_train_items / args.batch_size:
                 break
             if private:
-                new_train_loader.append((encode(data), encode(one_hot_of(target))))
+                new_train_loader.append((encode(data), encode(one_hot_of(target, num_classes))))
             else:
-                new_train_loader.append((data, one_hot_of(target)))
+                new_train_loader.append((data, one_hot_of(target, num_classes)))
 
         federated_train_loaders.append(new_train_loader)
 

@@ -40,7 +40,8 @@ def train(args, model, private_train_loader, optimizer, epoch):
 
     for batch_idx, (data, target) in enumerate(private_train_loader):
         start_time = time.time()
-
+        if args.comm_info:
+            sy.comm_total = 0
         def forward(optimizer, model, data, target):
             # print("1")
             optimizer.zero_grad()
@@ -92,6 +93,13 @@ def train(args, model, private_train_loader, optimizer, epoch):
                         args.batch_size,
                     )
                 )
+        if args.comm_info:
+            print(
+                "Total communication per item",
+                round(sy.comm_total / args.batch_size / 10 ** 6, 3),
+                "MB",
+            )
+            del sy.comm_total
 
     print()
     return torch.tensor(times).mean().item()

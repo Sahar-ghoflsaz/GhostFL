@@ -56,9 +56,9 @@ def run(args):
     totModel = None
     modeltot = get_model(args.model, args.dataset, out_features=get_number_classes(args.dataset))
 
-    torch.save(modeltot.state_dict(),'model.pth')
-    file_size = os.path.getsize('model.pth')
-    print(f"model size: {file_size} bytes")
+    # torch.save(modeltot.state_dict(),'model.pth')
+    # file_size = os.path.getsize('model.pth')
+    # print(f"model size: {file_size} bytes")
     #################### Here I create the virtual workers for the global model #######################
     jack = sy.VirtualWorker(hook, id="jack")
     john = sy.VirtualWorker(hook, id="john")
@@ -297,6 +297,9 @@ def run(args):
                             global_model.conv8.weight.data /= NUM_CLIENTS
                             global_model.conv9.weight.data /= NUM_CLIENTS
                             global_model.conv10.weight.data /= NUM_CLIENTS
+                            global_model.conv11.weight.data /= NUM_CLIENTS
+                            global_model.conv12.weight.data /= NUM_CLIENTS
+                            global_model.conv13.weight.data /= NUM_CLIENTS
                         else: 
                             print("network not supported")
 
