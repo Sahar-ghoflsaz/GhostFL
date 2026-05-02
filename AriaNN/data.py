@@ -16,7 +16,7 @@ def get_number_classes(dataset):
     return number_classes[dataset]
 
 
-def one_hot_of(index_tensor):
+def one_hot_of(index_tensor,num_classes):
     """
     Transform to one hot tensor
 
@@ -28,9 +28,13 @@ def one_hot_of(index_tensor):
          [0., 0., 0., 0., 0., 0., 0., 0., 0., 1.]]
 
     """
-    onehot_tensor = torch.zeros(*index_tensor.shape, 10)  # 10 classes for MNIST
-    onehot_tensor = onehot_tensor.scatter(1, index_tensor.view(-1, 1), 1)
+    index_tensor = index_tensor.long().view(-1)
+    onehot_tensor = torch.zeros(index_tensor.size(0), num_classes)
+    onehot_tensor.scatter_(1, index_tensor.unsqueeze(1), 1)
     return onehot_tensor
+    # onehot_tensor = torch.zeros(*index_tensor.shape, 10)  # 10 classes for MNIST
+    # onehot_tensor = onehot_tensor.scatter(1, index_tensor.view(-1, 1), 1)
+    # return onehot_tensor
 
 
 def get_data_loaders(args, kwargs, private=True):
@@ -52,6 +56,7 @@ def get_data_loaders(args, kwargs, private=True):
         return encrypted_tensor
 
     dataset = args.dataset
+    num_classes = get_number_classes(dataset)
 
     if dataset == "mnist":
         transformation = transforms.Compose(
@@ -79,9 +84,10 @@ def get_data_loaders(args, kwargs, private=True):
         )
 
     elif dataset == "tiny-imagenet":
+        print("dataset\n")
         transformation = transforms.Compose([transforms.ToTensor()])
         try:
-            data_dir = HOME + "/pytorch-tiny-imagenet/tiny-imagenet-200/"
+            data_dir = HOME + "/fusefl/FuSeFL/data/pytorch-tiny-imagenet/tiny-imagenet-200/"
             train_dataset = datasets.ImageFolder(os.path.join(data_dir, "train"), transformation)
             test_dataset = datasets.ImageFolder(os.path.join(data_dir, "test"), transformation)
         except FileNotFoundError:
@@ -109,7 +115,7 @@ def get_data_loaders(args, kwargs, private=True):
             ]
         )
         try:
-            data_dir = HOME + "/hymenoptera_data"
+            data_dir = HOME + "../data/hymenoptera_data"
             train_dataset = datasets.ImageFolder(
                 os.path.join(data_dir, "train"), train_transformation
             )
@@ -135,9 +141,9 @@ def get_data_loaders(args, kwargs, private=True):
         if args.n_train_items >= 0 and i >= args.n_train_items / args.batch_size:
             break
         if private:
-            new_train_loader.append((encode(data), encode(one_hot_of(target))))
+            new_train_loader.append((encode(data), encode(one_hot_of(target,num_classes))))
         else:
-            new_train_loader.append((data, one_hot_of(target)))
+            new_train_loader.append((data, one_hot_of(target,num_classes)))
 
     test_loader = torch.utils.data.DataLoader(
         test_dataset,

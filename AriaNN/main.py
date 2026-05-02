@@ -32,6 +32,7 @@ def run(args):
     print("dataset:\t", args.dataset)
     print("batch_size:\t", args.batch_size)
 
+    start = time.time()
     hook = sy.TorchHook(torch)
 
     if args.websockets:
@@ -67,6 +68,10 @@ def run(args):
 
     model = get_model(args.model, args.dataset, out_features=get_number_classes(args.dataset))
 
+    torch.save(model.state_dict(),'model.pth')
+    file_size = os.path.getsize('model.pth')
+    print(f"model size: {file_size} bytes")
+
     if args.test and not args.train:
         load_state_dict(model, args.model, args.dataset)
 
@@ -86,6 +91,10 @@ def run(args):
     # if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
     #     model.get()
 
+    end = time.time()
+    elapsed = end - start
+    print(f"initialized time = {elapsed}")
+
     if args.train:
         for epoch in range(args.epochs):
             optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
@@ -95,12 +104,7 @@ def run(args):
                     precision_fractional=args.precision_fractional, dtype=args.dtype
                 )
             train_time = train(args, model, private_train_loader, optimizer, epoch)
-            # model.decrypt()
             test_time, accuracy = test(args, model, private_test_loader)
-            # test_time, accuracy = test(args, model, public_test_loader)
-            # model.encrypt(**kwargs)
-            # if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-            #     model.get()
     else:
         test_time, accuracy = test(args, model, private_test_loader)
         if not args.test:
