@@ -6,7 +6,7 @@ This README has two parts:
 
 1- Documentation to set up the environment
 
-2- Scripts for running the source code
+2- Documentation for running the source codes
 
 
 ## Environment
