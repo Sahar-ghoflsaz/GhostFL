@@ -54,7 +54,6 @@ def run(args):
     modeltot = get_model(args.model, args.dataset, out_features=get_number_classes(args.dataset))
 
 
-    #################### Here I create the virtual workers for the global model #######################
     jack = sy.VirtualWorker(hook, id="jack")
     john = sy.VirtualWorker(hook, id="john")
     crypto_provider1 = sy.VirtualWorker(hook, id="crypto_provider")
@@ -75,12 +74,11 @@ def run(args):
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             global_model.get()
 
-    #################### end of generating global model #######################
 
     end = time.time()
     elapsed = end - start
     print("initialize time= %f sec", elapsed)
-    # public_train_loader, public_test_loader = get_data_loaders(args, kwargs, private=False)
+
     model = [None] * NUM_CLIENTS * args.global_epochs
     for gepoch in range(args.global_epochs):
         print("running training global epoch" + str(gepoch))
@@ -117,12 +115,8 @@ def run(args):
                 build_prepocessing(args.model, args.dataset, args.batch_size, workers[gepoch*NUM_GROUPS + globalClients], args)
 
             federated_train_loaders, new_test_loaders = get_federated_data_loaders(args, kwargs[gepoch*NUM_GROUPS + globalClients], num_clients=NUM_CLIENTS, private=True)
-            # new_global.decrypt()
             model[gepoch*NUM_GROUPS + globalClients] = copy.deepcopy(new_global)
-            # if not args.public:
-            #     new_global.encrypt(**kwargs1)
-            #     if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-            #         new_global.get()
+
             if args.test and not args.train:
                 load_state_dict(model[gepoch*NUM_GROUPS + globalClients], args.model, args.dataset)
             model[gepoch*NUM_GROUPS + globalClients].eval()
@@ -525,12 +519,4 @@ if __name__ == "__main__":
             raise e
 
     else:
-        # arg= [None] * NUM_CLIENTS
-        # totalModel = Null
-        # for client in range(NUM_CLIENTS):
-            # arg[client] = Arguments()
-        # for client in range(NUM_CLIENTS):
-            # print("running training on client" + str(client))
         run(args)
-            # print("done on client" + str(client))
-            # totalModel += arg[client].model

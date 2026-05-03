@@ -43,27 +43,20 @@ def train(args, model, private_train_loader, optimizer, epoch):
         if args.comm_info:
             sy.comm_total = 0
         def forward(optimizer, model, data, target):
-            # print("1")
             optimizer.zero_grad()
-            # print("2")
-            #forward here
             output = model(data)
-            # print("3")
             if args.model in {"network2", "alexnet", "vgg16"}:
                 loss_enc = output.cross_entropy(target)
             else:
                 batch_size = output.shape[0]
                 loss_enc = ((output - target) ** 2).sum() / batch_size
-            # print("4")
             return loss_enc
 
         loss = [10e10]
         loss_dec = torch.tensor([10e10])
 
         while loss_dec.abs() > 10:
-            # print("forward train")
             loss[0] = forward(optimizer, model, data, target)
-            # print("done forward")
             loss_dec = loss[0].copy()
             if loss_dec.is_wrapper:
                 if not args.fp_only:

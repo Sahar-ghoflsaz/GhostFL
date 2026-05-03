@@ -84,12 +84,7 @@ def run(args):
         model.encrypt(**kwargs)
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             model.get()
-    # model.decrypt()
-    # test_time, accuracy = test(args, model, private_test_loader)
-    # test_time, accuracy = test(args, model, public_test_loader)
-    # model.encrypt(**kwargs)
-    # if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-    #     model.get()
+
 
     end = time.time()
     elapsed = end - start

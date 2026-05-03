@@ -14,7 +14,7 @@ This README has two parts:
 
 **Code references:**
 
-Below is the link to our baseline. Our code is built upon AriaNN'S implementations, and we compare our implementation with them:
+Below is the link to our baseline. Our code is built upon AriaNN's implementations, and we compare our implementation with them:
 
 AriaNN: 
 https://github.com/LaRiffle/ariann.git

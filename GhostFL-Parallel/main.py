@@ -50,7 +50,6 @@ def run(args):
     modeltot = get_model(args.model, args.dataset, out_features=get_number_classes(args.dataset))
 
 
-    #################### Here I create the virtual workers for the global model #######################
     jack = sy.VirtualWorker(hook, id="jack")
     john = sy.VirtualWorker(hook, id="john")
     crypto_provider1 = sy.VirtualWorker(hook, id="crypto_provider")
@@ -71,10 +70,7 @@ def run(args):
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             global_model.get()
 
-    #################### end of generating global model #######################
-
     
-    # public_train_loader, public_test_loader = get_data_loaders(args, kwargs, private=False)
     model = [None] * NUM_CLIENTS * args.global_epochs
     for gepoch in range(args.global_epochs):
         print("running training global epoch" + str(gepoch))
@@ -111,12 +107,8 @@ def run(args):
                     build_prepocessing(args.model, args.dataset, args.batch_size, workers[gepoch*NUM_CLIENTS + client], args)
 
                 federated_train_loaders, new_test_loaders = get_federated_data_loaders(args, kwargs[gepoch*NUM_CLIENTS + client], num_clients=NUM_CLIENTS, private=True)
-                # new_global.decrypt()
                 model[gepoch*NUM_CLIENTS + client] = copy.deepcopy(new_global)
-                # if not args.public:
-                #     new_global.encrypt(**kwargs1)
-                #     if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-                #         new_global.get()
+
                 if args.test and not args.train:
                     load_state_dict(model[gepoch*NUM_CLIENTS + client], args.model, args.dataset)
 
@@ -150,14 +142,9 @@ def run(args):
                     print(model[gepoch*NUM_CLIENTS + client].fc1.weight.data)
                     local_model = copy.deepcopy(model[gepoch*NUM_CLIENTS + client])
                     if not args.public:
-                        # model[client].encrypt(**kwargs[client])
                         local_model.encrypt(**kwargs1)
                         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-                            # model[client].get()
                             local_model.get()
-
-                    # print("alice has: " + str(alice._objects))
-                    # model[client].fc1.weight.data=model[client].fc1.weight.data.send(john)
 
                 else:
 
@@ -166,13 +153,10 @@ def run(args):
                     print(model[gepoch*NUM_CLIENTS + client].fc1.weight.data)
                     new_model = copy.deepcopy(model[gepoch*NUM_CLIENTS + client])
                     if not args.public:
-                        # model[client].encrypt(**kwargs[client])
                         new_model.encrypt(**kwargs1)
                         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-                            # model[client].get()
                             new_model.get()
 
-                    # print("alice has: " + str(alice._objects))
                     if args.model == 'network1':
                         local_model.fc1.weight.data = (local_model.fc1.weight.data + new_model.fc1.weight.data)
                         local_model.fc2.weight.data = (local_model.fc2.weight.data + new_model.fc2.weight.data)
@@ -377,7 +361,6 @@ def run(args):
                     global_model.conv12.weight.data /= NUM_CLIENTS
                     global_model.conv13.weight.data /= NUM_CLIENTS
                 
-            # model[client].get(workers_a)
         if args.preprocess:
             missing_items = [len(v) for k, v in sy.preprocessed_material.items()]
             if sum(missing_items) > 0:
@@ -385,10 +368,6 @@ def run(args):
                 for key, value in sy.preprocessed_material.items():
                     print(f"'{key}':", value, ",")
 
-        # if not args.public:
-        #     decmodel0.encrypt(**kwargs)
-        #     if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
-        #         decmodel0.get()
         print("evaluation")
         global_model.decrypt()
         print("global model final")
@@ -607,12 +586,4 @@ if __name__ == "__main__":
             raise e
 
     else:
-        # arg= [None] * NUM_CLIENTS
-        # totalModel = Null
-        # for client in range(NUM_CLIENTS):
-            # arg[client] = Arguments()
-        # for client in range(NUM_CLIENTS):
-            # print("running training on client" + str(client))
         run(args)
-            # print("done on client" + str(client))
-            # totalModel += arg[client].model

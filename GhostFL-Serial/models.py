@@ -75,30 +75,24 @@ class VGG16_Hymenoptera_NoPad(nn.Module):
     def __init__(self, out_features=2):
         super(VGG16_Hymenoptera_NoPad, self).__init__()
 
-        # Block 1
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=0)
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=0)
 
-        # Block 2
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=0)
         self.conv4 = nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=0)
 
-        # Block 3
         self.conv5 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=0)
         self.conv6 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=0)
         self.conv7 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=0)
 
-        # Block 4
         self.conv8 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=0)
         self.conv9 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
         self.conv10 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
 
-        # Block 5
         self.conv11 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
         self.conv12 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
         self.conv13 = nn.Conv2d(512, 512, kernel_size=3, stride=1, padding=0)
 
-        # Classifier
         self.fc1 = nn.Linear(512 * 1 * 1, 512)
         self.fc2 = nn.Linear(512, 512)
         self.fc3 = nn.Linear(512, out_features)
@@ -140,51 +134,28 @@ class AlexNet_CIFAR10(nn.Module):
     def __init__(self, out_features=10):
         super(AlexNet_CIFAR10, self).__init__()
 
-        # Feature Extractor (ALL PADDING SET TO 0)
         self.conv1 = nn.Conv2d(3, 96, kernel_size=3, stride=1, padding=0)
         self.conv2 = nn.Conv2d(96, 256, kernel_size=5, stride=1, padding=0) 
         self.conv3 = nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=0)
         self.conv4 = nn.Conv2d(384, 384, kernel_size=3, stride=1, padding=0)
         self.conv5 = nn.Conv2d(384, 256, kernel_size=3, stride=1, padding=0)
 
-        # Classifier
-        # The input size shrinks to 2x2 because we removed all padding
         self.fc1 = nn.Linear(256 * 2 * 2, 256) 
         self.fc2 = nn.Linear(256, 256)
         self.fc3 = nn.Linear(256, out_features)
 
     def forward(self, x):
-        # Layer 1: Conv -> ReLU -> Pool
-        # print("First conv")
         x = F.max_pool2d(F.relu(self.conv1(x)), kernel_size=2, stride=2)
-
-        # Layer 2: Conv -> ReLU 
-        # (Removed the pooling layer here so the tensor doesn't shrink too fast)
-        # print("Second conv")
         x = F.relu(self.conv2(x))
-
-        # Layers 3, 4, 5: Conv -> ReLU
-        # print("Third conv")
         x = F.relu(self.conv3(x))
-        # print("Fourth conv")
         x = F.relu(self.conv4(x))
-        # print("Fifth conv")
         x = F.relu(self.conv5(x))
-        
-        # Final Pool
-        # print("fINAL POOL")
         x = F.max_pool2d(x, kernel_size=2, stride=2) 
 
-        # Reshape for the linear layers based on the new 2x2 spatial size
-        # print("Reshape")
         x = x.reshape(-1, 256 * 2 * 2)
 
-        # Fully Connected
-        # print("First fc")
         x = F.relu(self.fc1(x))
-        # print("second fc")
         x = F.relu(self.fc2(x))
-        # print("Third fc")
         x = self.fc3(x)
 
         return x

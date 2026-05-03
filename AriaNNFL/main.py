@@ -56,10 +56,6 @@ def run(args):
     totModel = None
     modeltot = get_model(args.model, args.dataset, out_features=get_number_classes(args.dataset))
 
-    # torch.save(modeltot.state_dict(),'model.pth')
-    # file_size = os.path.getsize('model.pth')
-    # print(f"model size: {file_size} bytes")
-    #################### Here I create the virtual workers for the global model #######################
     jack = sy.VirtualWorker(hook, id="jack")
     john = sy.VirtualWorker(hook, id="john")
     crypto_provider1 = sy.VirtualWorker(hook, id="crypto_provider")
@@ -79,11 +75,7 @@ def run(args):
         global_model.encrypt(**kwargs1)
         if args.fp_only:  # Just keep the (Autograd+) Fixed Precision feature
             global_model.get()
-
-    #################### end of generating global model #######################
-
     
-    # public_train_loader, public_test_loader = get_data_loaders(args, kwargs, private=False)
     model = [None] * NUM_CLIENTS * args.global_epochs
     for gepoch in range(args.global_epochs):
         print("running training global epoch" + str(gepoch))
